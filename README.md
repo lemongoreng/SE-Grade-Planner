@@ -47,31 +47,22 @@ lib/
 
 🏁 Getting Started
 Prerequisites
-Flutter SDK installed.
-
-VS Code or Android Studio.
+1. Flutter SDK installed.
+2. VS Code or Android Studio.
 
 Installation
-Clone the repository
-
-Bash
-
+1. Clone the repository
 git clone [https://github.com/lemongoreng/SE-Grade-Planner.git](https://github.com/lemongoreng/SE-Grade-Planner.git)
-Navigate to the project folder
 
-Bash
-
+2. Navigate to the project folder
 cd SE-Grade-Planner
-Install dependencies
 
-Bash
-
+3. Install dependencies
 flutter pub get
-Run the app
 
-Bash
-
+4. Run the app
 flutter run
+
 🗺️ Roadmap
 [x] Implement Core Curriculum (Year 1-4)
 
