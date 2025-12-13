@@ -4,7 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../models/course.dart';
 import '../data/unimas_curriculum.dart';
 import '../utils/calculator_logic.dart'; 
-import '../main.dart'; // This allows us to access MyApp
+import '../main.dart'; 
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -30,6 +30,9 @@ class _HomeScreenState extends State<HomeScreen> {
   Future<void> _initializeData() async {
     _groupCoursesBySemester();
     _prefs = await SharedPreferences.getInstance();
+    
+    // Load Data in Order: Edits first, then Grades
+    _loadCourseEdits(); 
     _loadGrades();
   }
 
@@ -44,6 +47,7 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
+  // --- EXISTING: GRADE PERSISTENCE ---
   void _loadGrades() {
     if (_prefs == null) return;
     String? jsonString = _prefs!.getString('saved_grades');
@@ -67,6 +71,64 @@ class _HomeScreenState extends State<HomeScreen> {
     _prefs!.setString('saved_grades', jsonEncode(dataToSave));
   }
 
+  // --- NEW FEATURE: COURSE EDIT PERSISTENCE ---
+  // We save edits in a separate map: {"ABCXXX3": {"name": "Mandarin", "credits": 2}}
+  void _loadCourseEdits() {
+    if (_prefs == null) return;
+    String? jsonString = _prefs!.getString('saved_course_edits');
+    
+    if (jsonString != null) {
+      Map<String, dynamic> savedEdits = jsonDecode(jsonString);
+      
+      for (var course in _allCourses) {
+        if (savedEdits.containsKey(course.code)) {
+          final editData = savedEdits[course.code];
+          course.name = editData['name'];
+          course.creditHours = editData['credits'];
+        }
+      }
+      // Note: No need to recalculate CGPA here, _loadGrades will do it
+    }
+  }
+
+  void _saveCourseEdits() {
+    if (_prefs == null) return;
+    
+    // Find courses that are different from the original curriculum
+    // (Ideally we compare against original, but for simplicity we save any edit made via dialog)
+    // Here we will just save the current state of modified courses. 
+    // To identify "modified", we rely on the user having clicked "Save" in the dialog.
+    
+    Map<String, dynamic> editsToSave = {};
+    
+    // Actually, we can just save ALL edits that we track. 
+    // But since we modified the objects in place, we iterate all and save custom ones?
+    // Optimization: Only save if we know it changed. 
+    // For this implementation, we will save the specific course whenever the Edit Dialog is used.
+    
+    // Better approach: Re-build the map from scratch based on current list
+    // But we don't know which are "original". 
+    // Hack: We will just save ALL names/credits to a map if we edit them.
+    // Let's implement the specific save inside the Dialog method to avoid scanning.
+  }
+
+  // Helper to save a single edit to the list
+  void _persistSingleEdit(Course course) {
+    if (_prefs == null) return;
+    
+    String? jsonString = _prefs!.getString('saved_course_edits');
+    Map<String, dynamic> savedEdits = jsonString != null ? jsonDecode(jsonString) : {};
+
+    savedEdits[course.code] = {
+      'name': course.name,
+      'credits': course.creditHours,
+    };
+
+    _prefs!.setString('saved_course_edits', jsonEncode(savedEdits));
+  }
+  
+  // ---------------------------------------------
+
   void _recalculateCGPA() {
     double totalPoints = 0;
     int credits = 0;
@@ -82,6 +144,58 @@ class _HomeScreenState extends State<HomeScreen> {
         _cgpa = credits > 0 ? totalPoints / credits : 0.00;
       });
     }
+  }
+
+  // --- DIALOGS ---
+
+  // NEW: Edit Course Dialog
+  void _showEditCourseDialog(Course course) {
+    TextEditingController nameController = TextEditingController(text: course.name);
+    TextEditingController creditController = TextEditingController(text: course.creditHours.toString());
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text('Edit ${course.code}'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: nameController,
+                decoration: const InputDecoration(labelText: 'Course Name'),
+              ),
+              const SizedBox(height: 10),
+              TextField(
+                controller: creditController,
+                decoration: const InputDecoration(labelText: 'Credit Hours'),
+                keyboardType: TextInputType.number,
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Cancel'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                setState(() {
+                  course.name = nameController.text;
+                  course.creditHours = int.tryParse(creditController.text) ?? course.creditHours;
+                  
+                  // Save changes
+                  _persistSingleEdit(course);
+                  _recalculateCGPA(); // Credits might have changed
+                });
+                Navigator.pop(context);
+              },
+              child: const Text('Save'),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   void _showGradeDialog(Course course) {
@@ -193,7 +307,6 @@ class _HomeScreenState extends State<HomeScreen> {
           IconButton(
             icon: Icon(isDarkMode ? Icons.light_mode : Icons.dark_mode),
             onPressed: () {
-              // This should work now because MyAppState is public
               MyApp.of(context)?.toggleTheme(!isDarkMode);
             },
           ),
@@ -265,8 +378,18 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget _buildCourseTile(Course course, bool isDarkMode) {
     return ListTile(
+      // NEW: Long Press to Edit
+      onLongPress: () => _showEditCourseDialog(course),
+      
       title: Text(course.code, style: const TextStyle(fontWeight: FontWeight.w600)),
-      subtitle: Text(course.name),
+      subtitle: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(course.name),
+          // NEW: Show credit hours so user knows if they changed it
+          Text('${course.creditHours} Credits', style: TextStyle(fontSize: 12, color: Colors.grey)),
+        ],
+      ),
       trailing: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
         decoration: BoxDecoration(
