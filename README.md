@@ -1,16 +1,89 @@
-# unimas_grade_planner
+# 🎓 UNIMAS SE Grade Planner
 
-A new Flutter project.
+A professional Flutter mobile application designed specifically for **Software Engineering students at Universiti Malaysia Sarawak (UNIMAS)**. 
 
-## Getting Started
+This tool helps students track their academic performance, forecast required grades to hit CGPA targets, and manage their 4-year curriculum roadmap.
 
-This project is a starting point for a Flutter application.
+## 🚀 Key Features
 
-A few resources to get you started if this is your first Flutter project:
+### 📚 Pre-loaded Curriculum
+* **Complete Roadmap:** Contains the full list of subjects (Code, Name, Credit Hours) from Year 1 to Year 4 based on the official UNIMAS Software Engineering Guidebook.
+* **Semester Organization:** Courses are automatically grouped by Year and Semester (e.g., "Year 2 Semester 1") for easy navigation.
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+### 📊 Advanced Calculation
+* **Real-time CGPA:** Instantly updates your pointer as you input grades.
+* **Target GPA Calculator:** A forecasting tool that answers: *"What GPA do I need this semester to reach a CGPA of 3.50?"*
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+### 💾 Smart Persistence
+* **Auto-Save:** Grades are saved locally using `SharedPreferences`. You never lose your data, even if you close the app.
+* **Dark Mode:** Fully supported dark theme that respects your system settings or can be toggled manually.
+
+---
+
+## 🛠️ Tech Stack
+* **Framework:** [Flutter](https://flutter.dev/) (Dart)
+* **Architecture:** MVC (Model-View-Controller)
+* **State Management:** `setState` with optimized Memoization
+* **Local Storage:** `shared_preferences`
+* **IDE:** VS Code
+
+---
+
+## 📂 Project Structure
+The codebase follows industry-standard engineering practices:
+
+```text
+lib/
+├── data/
+│   └── unimas_curriculum.dart   # Hardcoded subject list & credit hours
+├── models/
+│   ├── course.dart              # Data model for Course object
+│   └── unimas_grade.dart        # Logic for converting Grades to Points (A = 4.0)
+├── screens/
+│   └── home_screen.dart         # Main UI (Optimized with Memoization)
+├── utils/
+│   └── calculator_logic.dart    # Pure logic for Target GPA calculations
+├── main.dart                    # Application Entry Point & Theme Logic
+
+🏁 Getting Started
+Prerequisites
+Flutter SDK installed.
+
+VS Code or Android Studio.
+
+Installation
+Clone the repository
+
+Bash
+
+git clone [https://github.com/lemongoreng/SE-Grade-Planner.git](https://github.com/lemongoreng/SE-Grade-Planner.git)
+Navigate to the project folder
+
+Bash
+
+cd SE-Grade-Planner
+Install dependencies
+
+Bash
+
+flutter pub get
+Run the app
+
+Bash
+
+flutter run
+🗺️ Roadmap
+[x] Implement Core Curriculum (Year 1-4)
+
+[x] Add Data Persistence (Save/Load Grades)
+
+[x] Add Target GPA Calculator
+
+[x] Add Dark Mode Support
+
+[ ] Add "Edit Course" feature (for electives)
+
+[ ] Export Data to PDF
+
+🤝 Contributing
+Contributions are welcome! If you notice a change in the UNIMAS curriculum (e.g., a credit hour update), please open an issue or submit a pull request.
