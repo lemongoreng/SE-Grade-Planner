@@ -91,27 +91,6 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
-  void _saveCourseEdits() {
-    if (_prefs == null) return;
-    
-    // Find courses that are different from the original curriculum
-    // (Ideally we compare against original, but for simplicity we save any edit made via dialog)
-    // Here we will just save the current state of modified courses. 
-    // To identify "modified", we rely on the user having clicked "Save" in the dialog.
-    
-    Map<String, dynamic> editsToSave = {};
-    
-    // Actually, we can just save ALL edits that we track. 
-    // But since we modified the objects in place, we iterate all and save custom ones?
-    // Optimization: Only save if we know it changed. 
-    // For this implementation, we will save the specific course whenever the Edit Dialog is used.
-    
-    // Better approach: Re-build the map from scratch based on current list
-    // But we don't know which are "original". 
-    // Hack: We will just save ALL names/credits to a map if we edit them.
-    // Let's implement the specific save inside the Dialog method to avoid scanning.
-  }
-
   // Helper to save a single edit to the list
   void _persistSingleEdit(Course course) {
     if (_prefs == null) return;
