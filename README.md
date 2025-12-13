@@ -72,7 +72,7 @@ flutter run
 
 [x] Add Dark Mode Support
 
-[ ] Add "Edit Course" feature (for electives)
+[x] Add "Edit Course" feature (for electives)
 
 [ ] Export Data to PDF
 
