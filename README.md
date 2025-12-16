@@ -59,10 +59,15 @@ git clone [https://github.com/lemongoreng/SE-Grade-Planner.git](https://github.c
 cd SE-Grade-Planner
 
 3. Install dependencies
+This command downloads all required packages (PDF, Printing, Shared Preferences, etc.):
 flutter pub get
 
 4. Run the app
 flutter run
+
+⚙️ Development Notes
+Changing the App Icon: If you replace `assets/icon.png`, run this command to regenerate the launcher icons for Android and iOS:
+dart run flutter_launcher_icons
 
 🗺️ Roadmap
 [x] Implement Core Curriculum (Year 1-4)
