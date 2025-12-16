@@ -4,6 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../models/course.dart';
 import '../data/unimas_curriculum.dart';
 import '../utils/calculator_logic.dart'; 
+import '../utils/pdf_generator.dart'; // NEW: Import PDF generator
 import '../main.dart'; 
 
 class HomeScreen extends StatefulWidget {
@@ -31,7 +32,7 @@ class _HomeScreenState extends State<HomeScreen> {
     _groupCoursesBySemester();
     _prefs = await SharedPreferences.getInstance();
     
-    // Load Data in Order: Edits first, then Grades
+    // Load Data: Edits first, then Grades
     _loadCourseEdits(); 
     _loadGrades();
   }
@@ -47,7 +48,7 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
-  // --- EXISTING: GRADE PERSISTENCE ---
+  // --- PERSISTENCE: GRADES ---
   void _loadGrades() {
     if (_prefs == null) return;
     String? jsonString = _prefs!.getString('saved_grades');
@@ -71,8 +72,7 @@ class _HomeScreenState extends State<HomeScreen> {
     _prefs!.setString('saved_grades', jsonEncode(dataToSave));
   }
 
-  // --- NEW FEATURE: COURSE EDIT PERSISTENCE ---
-  // We save edits in a separate map: {"ABCXXX3": {"name": "Mandarin", "credits": 2}}
+  // --- PERSISTENCE: COURSE EDITS ---
   void _loadCourseEdits() {
     if (_prefs == null) return;
     String? jsonString = _prefs!.getString('saved_course_edits');
@@ -87,11 +87,9 @@ class _HomeScreenState extends State<HomeScreen> {
           course.creditHours = editData['credits'];
         }
       }
-      // Note: No need to recalculate CGPA here, _loadGrades will do it
     }
   }
 
-  // Helper to save a single edit to the list
   void _persistSingleEdit(Course course) {
     if (_prefs == null) return;
     
@@ -105,9 +103,8 @@ class _HomeScreenState extends State<HomeScreen> {
 
     _prefs!.setString('saved_course_edits', jsonEncode(savedEdits));
   }
-  
-  // ---------------------------------------------
 
+  // --- CALCULATION ---
   void _recalculateCGPA() {
     double totalPoints = 0;
     int credits = 0;
@@ -127,7 +124,6 @@ class _HomeScreenState extends State<HomeScreen> {
 
   // --- DIALOGS ---
 
-  // NEW: Edit Course Dialog
   void _showEditCourseDialog(Course course) {
     TextEditingController nameController = TextEditingController(text: course.name);
     TextEditingController creditController = TextEditingController(text: course.creditHours.toString());
@@ -163,9 +159,8 @@ class _HomeScreenState extends State<HomeScreen> {
                   course.name = nameController.text;
                   course.creditHours = int.tryParse(creditController.text) ?? course.creditHours;
                   
-                  // Save changes
                   _persistSingleEdit(course);
-                  _recalculateCGPA(); // Credits might have changed
+                  _recalculateCGPA();
                 });
                 Navigator.pop(context);
               },
@@ -283,6 +278,20 @@ class _HomeScreenState extends State<HomeScreen> {
         backgroundColor: isDarkMode ? null : const Color(0xFF02569B),
         foregroundColor: Colors.white,
         actions: [
+          // PDF EXPORT BUTTON
+          IconButton(
+            icon: const Icon(Icons.picture_as_pdf),
+            tooltip: 'Export to PDF',
+            onPressed: () {
+              PdfGenerator.generateAndPrint(
+                _allCourses, 
+                _cgpa, 
+                _totalCreditsEarned
+              );
+            },
+          ),
+          
+          // THEME TOGGLE BUTTON
           IconButton(
             icon: Icon(isDarkMode ? Icons.light_mode : Icons.dark_mode),
             onPressed: () {
@@ -357,7 +366,6 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget _buildCourseTile(Course course, bool isDarkMode) {
     return ListTile(
-      // NEW: Long Press to Edit
       onLongPress: () => _showEditCourseDialog(course),
       
       title: Text(course.code, style: const TextStyle(fontWeight: FontWeight.w600)),
@@ -365,8 +373,7 @@ class _HomeScreenState extends State<HomeScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(course.name),
-          // NEW: Show credit hours so user knows if they changed it
-          Text('${course.creditHours} Credits', style: TextStyle(fontSize: 12, color: Colors.grey)),
+          Text('${course.creditHours} Credits', style: const TextStyle(fontSize: 12, color: Colors.grey)),
         ],
       ),
       trailing: Container(
