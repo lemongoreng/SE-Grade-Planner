@@ -43,6 +43,7 @@ lib/
 │   └── home_screen.dart         # Main UI (Optimized with Memoization)
 ├── utils/
 │   └── calculator_logic.dart    # Pure logic for Target GPA calculations
+│   └── pdf_generator.dart       # Service to generate & print PDF reports
 ├── main.dart                    # Application Entry Point & Theme Logic
 
 🏁 Getting Started
@@ -74,7 +75,7 @@ flutter run
 
 [x] Add "Edit Course" feature (for electives)
 
-[ ] Export Data to PDF
+[x] Export Data to PDF
 
 🤝 Contributing
 Contributions are welcome! If you notice a change in the UNIMAS curriculum (e.g., a credit hour update), please open an issue or submit a pull request.
