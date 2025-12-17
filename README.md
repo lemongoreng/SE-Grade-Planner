@@ -1,4 +1,5 @@
 # 🎓 UNIMAS SE Grade Planner
+[![Download for Android](https://img.shields.io/badge/Download%20for-Android-3DDC84?style=for-the-badge&logo=android&logoColor=white)](https://github.com/lemongoreng/SE-Grade-Planner/releases/latest)
 
 A professional Flutter mobile application designed specifically for **Software Engineering students at Universiti Malaysia Sarawak (UNIMAS)**. 
 
