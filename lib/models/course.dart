@@ -2,8 +2,8 @@ import 'unimas_grade.dart';
 
 class Course {
   final String code;
-  String name;           // CHANGED: Removed 'final' so it can be edited
-  int creditHours;       // CHANGED: Removed 'final' so it can be edited
+  String name;           
+  int creditHours;       
   final int year;
   final int semester;
   String? grade;
