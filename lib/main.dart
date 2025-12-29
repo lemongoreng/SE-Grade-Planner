@@ -4,16 +4,28 @@ import 'utils/notification_service.dart';
 import 'screens/home_screen.dart';
 
 void main() async {
+  // 1. Ensure bindings are initialized first
   WidgetsFlutterBinding.ensureInitialized();
-  tz.initializeTimeZones();
-  await NotificationService.init();
+
+  try {
+    // 2. Initialize Timezones
+    tz.initializeTimeZones();
+
+    // 3. Initialize Notifications (Safely)
+    // We await this, but we wrap it so it doesn't kill the app if it fails
+    await NotificationService.init();
+  } catch (e) {
+    // If notifications fail, print error but LET THE APP CONTINUE
+    debugPrint("Error initializing services: $e");
+  }
+
+  // 4. Launch the App
   runApp(const MyApp());
 }
 
 class MyApp extends StatefulWidget {
   const MyApp({super.key});
 
-  // FIXED: Return type is now 'MyAppState' (public), not '_MyAppState'
   static MyAppState? of(BuildContext context) => 
       context.findAncestorStateOfType<MyAppState>();
 
@@ -21,7 +33,6 @@ class MyApp extends StatefulWidget {
   State<MyApp> createState() => MyAppState();
 }
 
-// FIXED: Class name changed from '_MyAppState' to 'MyAppState' (Public)
 class MyAppState extends State<MyApp> {
   ThemeMode _themeMode = ThemeMode.light;
 
