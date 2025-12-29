@@ -1,46 +1,40 @@
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:timezone/data/latest.dart' as tz;
+import 'utils/notification_service.dart';
 import 'screens/home_screen.dart';
 
-void main() {
+void main() async {
+  // 1. Required for async calls in main
+  WidgetsFlutterBinding.ensureInitialized();
+
+  // 2. Initialize Timezone Database (Critical for scheduling)
+  tz.initializeTimeZones();
+
+  // 3. Initialize Notification Service
+  await NotificationService.init();
+
   runApp(const MyApp());
 }
 
 class MyApp extends StatefulWidget {
   const MyApp({super.key});
 
-  static MyAppState? of(BuildContext context) =>
-      context.findAncestorStateOfType<MyAppState>();
+  // This allows us to access the toggleTheme function from anywhere
+  static _MyAppState? of(BuildContext context) => 
+      context.findAncestorStateOfType<_MyAppState>();
 
   @override
-  State<MyApp> createState() => MyAppState();
+  State<MyApp> createState() => _MyAppState();
 }
 
-class MyAppState extends State<MyApp> {
-  ThemeMode _themeMode = ThemeMode.system;
+class _MyAppState extends State<MyApp> {
+  // Default to Light Mode
+  ThemeMode _themeMode = ThemeMode.light;
 
-  @override
-  void initState() {
-    super.initState();
-    _loadTheme();
-  }
-
-  Future<void> _loadTheme() async {
-    final prefs = await SharedPreferences.getInstance();
-    final isDark = prefs.getBool('is_dark_mode');
-    if (isDark != null) {
-      setState(() {
-        _themeMode = isDark ? ThemeMode.dark : ThemeMode.light;
-      });
-    }
-  }
-
-  void toggleTheme(bool isDark) async {
-    final prefs = await SharedPreferences.getInstance();
+  void toggleTheme(bool isDark) {
     setState(() {
       _themeMode = isDark ? ThemeMode.dark : ThemeMode.light;
     });
-    await prefs.setBool('is_dark_mode', isDark);
   }
 
   @override
@@ -49,31 +43,33 @@ class MyAppState extends State<MyApp> {
       debugShowCheckedModeBanner: false,
       title: 'UNIMAS Grade Planner',
       
-      // Light Theme
+      // Light Theme Settings
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: const Color(0xFF02569B),
-          brightness: Brightness.light,
-        ),
-        useMaterial3: true,
-        scaffoldBackgroundColor: Colors.white,
-      ),
-
-      // Dark Theme (SIMPLIFIED: Removed CardTheme to fix error)
-      darkTheme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: const Color(0xFF02569B),
-          brightness: Brightness.dark,
-        ),
-        useMaterial3: true,
-        scaffoldBackgroundColor: const Color(0xFF121212),
+        brightness: Brightness.light,
+        primarySwatch: Colors.blue,
+        scaffoldBackgroundColor: Colors.grey[50],
         appBarTheme: const AppBarTheme(
-          backgroundColor: Color(0xFF1F1F1F),
+          backgroundColor: Color(0xFF02569B),
           foregroundColor: Colors.white,
+          elevation: 0,
         ),
+        useMaterial3: true,
       ),
 
-      themeMode: _themeMode, 
+      // Dark Theme Settings
+      darkTheme: ThemeData(
+        brightness: Brightness.dark,
+        primarySwatch: Colors.blue,
+        scaffoldBackgroundColor: Colors.grey[900],
+        appBarTheme: AppBarTheme(
+          backgroundColor: Colors.grey[900],
+          foregroundColor: Colors.white,
+          elevation: 0,
+        ),
+        useMaterial3: true,
+      ),
+
+      themeMode: _themeMode, // Uses the state variable
       home: const HomeScreen(),
     );
   }
