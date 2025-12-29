@@ -92,7 +92,7 @@ flutter run
 * Notifications: This app uses flutter_local_notifications. If testing on Android 13+, ensure you grant notification permissions when prompted.
 * Timezones: The app initializes the timezone database (tz.initializeTimeZones()) in main.dart to ensure exam alerts trigger correctly across different regions.
 
-🗺️ Roadmap
+🗺️ Roadmap  
 [x] Implement Core Curriculum (Year 1-4)
 
 [x] Add Data Persistence (Save/Load Grades)
