@@ -37,7 +37,8 @@ class ExamCard extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: Colors.redAccent.withOpacity(0.2),
+                // FIXED: Updated to .withValues(alpha: ...)
+                color: Colors.redAccent.withValues(alpha: 0.2),
                 shape: BoxShape.circle,
               ),
               child: const Icon(Icons.timer_outlined, color: Colors.redAccent, size: 30),

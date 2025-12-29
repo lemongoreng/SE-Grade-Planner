@@ -281,13 +281,11 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     final isDarkMode = Theme.of(context).brightness == Brightness.dark;
 
-    return WillPopScope(
-      onWillPop: () async {
-        if (_selectedYear != null) {
-          _goBack(); // Handle back button to go up a level
-          return false;
-        }
-        return true; // Exit app if at root
+    return PopScope(
+      canPop: _selectedYear == null, // Only allow exit if we are at the Dashboard (root)
+      onPopInvokedWithResult: (didPop, result) {
+        if (didPop) return; // If the app already exited, do nothing
+        _goBack(); // Otherwise, go up one level (e.g., Year -> Dashboard)
       },
       child: Scaffold(
         appBar: AppBar(

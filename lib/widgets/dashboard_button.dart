@@ -30,7 +30,11 @@ class DashboardButton extends StatelessWidget {
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(16),
             gradient: LinearGradient(
-              colors: [color.withOpacity(0.8), color],
+              colors: [
+                // FIXED: Use .withValues(alpha: ...) instead of .withOpacity()
+                color.withValues(alpha: 0.8), 
+                color
+              ],
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
             ),
@@ -40,7 +44,8 @@ class DashboardButton extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.2),
+                  // FIXED: Use .withValues(alpha: ...)
+                  color: Colors.white.withValues(alpha: 0.2),
                   shape: BoxShape.circle,
                 ),
                 child: Icon(icon, color: Colors.white, size: 28),
