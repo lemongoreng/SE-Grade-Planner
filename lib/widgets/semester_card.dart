@@ -30,8 +30,8 @@ class SemesterCard extends StatelessWidget {
           onTap: () => onGrade(course),
           title: Text(course.code, style: const TextStyle(fontWeight: FontWeight.w600)),
           subtitle: Text(course.name, maxLines: 1, overflow: TextOverflow.ellipsis),
-          trailing: Container(
-            width: 80, 
+          trailing: SizedBox( // FIXED: Changed Container to SizedBox
+            width: 80,
             child: Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [

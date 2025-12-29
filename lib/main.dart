@@ -4,31 +4,25 @@ import 'utils/notification_service.dart';
 import 'screens/home_screen.dart';
 
 void main() async {
-  // 1. Required for async calls in main
   WidgetsFlutterBinding.ensureInitialized();
-
-  // 2. Initialize Timezone Database (Critical for scheduling)
   tz.initializeTimeZones();
-
-  // 3. Initialize Notification Service
   await NotificationService.init();
-
   runApp(const MyApp());
 }
 
 class MyApp extends StatefulWidget {
   const MyApp({super.key});
 
-  // This allows us to access the toggleTheme function from anywhere
-  static _MyAppState? of(BuildContext context) => 
-      context.findAncestorStateOfType<_MyAppState>();
+  // FIXED: Return type is now 'MyAppState' (public), not '_MyAppState'
+  static MyAppState? of(BuildContext context) => 
+      context.findAncestorStateOfType<MyAppState>();
 
   @override
-  State<MyApp> createState() => _MyAppState();
+  State<MyApp> createState() => MyAppState();
 }
 
-class _MyAppState extends State<MyApp> {
-  // Default to Light Mode
+// FIXED: Class name changed from '_MyAppState' to 'MyAppState' (Public)
+class MyAppState extends State<MyApp> {
   ThemeMode _themeMode = ThemeMode.light;
 
   void toggleTheme(bool isDark) {
@@ -42,8 +36,6 @@ class _MyAppState extends State<MyApp> {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'UNIMAS Grade Planner',
-      
-      // Light Theme Settings
       theme: ThemeData(
         brightness: Brightness.light,
         primarySwatch: Colors.blue,
@@ -55,8 +47,6 @@ class _MyAppState extends State<MyApp> {
         ),
         useMaterial3: true,
       ),
-
-      // Dark Theme Settings
       darkTheme: ThemeData(
         brightness: Brightness.dark,
         primarySwatch: Colors.blue,
@@ -68,8 +58,7 @@ class _MyAppState extends State<MyApp> {
         ),
         useMaterial3: true,
       ),
-
-      themeMode: _themeMode, // Uses the state variable
+      themeMode: _themeMode,
       home: const HomeScreen(),
     );
   }
