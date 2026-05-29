@@ -43,4 +43,39 @@ class Course {
   }
 
   double get totalQualityPoints => pointValue * creditHours;
+
+  Map<String, dynamic> toJson() {
+    return {
+      'code': code,
+      'name': name,
+      'creditHours': creditHours,
+      'year': year,
+      'semester': semester,
+      'grade': grade,
+      'examDate': examDate?.toIso8601String(),
+      'examTime': examTime != null ? "${examTime!.hour}:${examTime!.minute}" : null,
+      'examVenue': examVenue,
+    };
+  }
+
+  factory Course.fromJson(Map<String, dynamic> json) {
+    TimeOfDay? parsedTime;
+    if (json['examTime'] != null) {
+      final parts = json['examTime'].toString().split(':');
+      if (parts.length == 2) {
+        parsedTime = TimeOfDay(hour: int.parse(parts[0]), minute: int.parse(parts[1]));
+      }
+    }
+    return Course(
+      code: json['code'] ?? '',
+      name: json['name'] ?? '',
+      creditHours: json['creditHours'] ?? 0,
+      year: json['year'] ?? 1,
+      semester: json['semester'] ?? 1,
+      grade: json['grade'],
+      examDate: json['examDate'] != null ? DateTime.tryParse(json['examDate']) : null,
+      examTime: parsedTime,
+      examVenue: json['examVenue'],
+    );
+  }
 }

@@ -1,6 +1,7 @@
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:timezone/data/latest.dart' as tz;
+import 'package:timezone/data/latest_all.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
+import 'package:flutter_timezone/flutter_timezone.dart';
 
 class NotificationService {
   // Singleton pattern to access the plugin
@@ -9,14 +10,18 @@ class NotificationService {
 
   // Initialize the plugin (run this in main.dart)
   static Future<void> init() async {
-    tz.initializeTimeZones(); // Initialize time zone database
+    // 1. Initialize Time Zones properly
+    tz.initializeTimeZones(); 
+    
+    // FIXED: Capture the TimezoneInfo object, then extract its identifier
+    final timeZoneInfo = await FlutterTimezone.getLocalTimezone();
+    tz.setLocalLocation(tz.getLocation(timeZoneInfo.identifier)); 
 
-    // Android settings (icon must exist in android/app/src/main/res/drawable)
-    // '@mipmap/ic_launcher' uses the default app icon
+    // Android settings 
     const AndroidInitializationSettings androidSettings =
         AndroidInitializationSettings('@mipmap/ic_launcher');
 
-    // iOS settings (default permissions)
+    // iOS settings 
     const DarwinInitializationSettings iosSettings =
         DarwinInitializationSettings(
       requestAlertPermission: true,
@@ -48,39 +53,44 @@ class NotificationService {
     // Convert DateTime to TimeZone aware DateTime
     final tz.TZDateTime tzDate = tz.TZDateTime.from(scheduledDate, tz.local);
 
-    // If the date is in the past, don't schedule it (or schedule for next year if strictly recurring)
     if (tzDate.isBefore(tz.TZDateTime.now(tz.local))) {
       return; 
     }
 
     await _notificationsPlugin.zonedSchedule(
-      id, // Unique ID for the notification (hash code of course code usually)
+      id, 
       title,
       body,
       tzDate,
       const NotificationDetails(
         android: AndroidNotificationDetails(
-          'exam_channel_id', // Channel ID
-          'Exam Reminders',   // Channel Name
-          channelDescription: 'Notifications for upcoming exams',
+          'exam_alarm_channel_id', // Channel ID
+          'Exam Alarms',   
+          channelDescription: 'Full-screen alarms for upcoming exams',
           importance: Importance.max,
-          priority: Priority.high,
+          priority: Priority.max,
           icon: '@mipmap/ic_launcher',
+          
+          // --- ALARM CLOCK FEATURES ---
+          fullScreenIntent: true, // Wakes up the screen / shows over lock screen
+          category: AndroidNotificationCategory.alarm, // Bypasses Do Not Disturb
+          audioAttributesUsage: AudioAttributesUsage.alarm, // Uses the Alarm volume
+          playSound: true,
         ),
-        iOS: DarwinNotificationDetails(),
+        iOS: DarwinNotificationDetails(
+          interruptionLevel: InterruptionLevel.timeSensitive, 
+        ),
       ),
-      androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle, // Deliver exactly at time even in low power mode
+      androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle, 
       uiLocalNotificationDateInterpretation:
           UILocalNotificationDateInterpretation.absoluteTime,
     );
   }
 
-  // Cancel a specific notification (e.g., if exam date changes)
   static Future<void> cancelNotification(int id) async {
     await _notificationsPlugin.cancel(id);
   }
 
-  // Cancel all notifications
   static Future<void> cancelAll() async {
     await _notificationsPlugin.cancelAll();
   }
